@@ -5,15 +5,15 @@ variable "awsregion" {
 
 variable "desired_size" {
   default = 1
-  type = number
+  type    = number
 }
 variable "max_size" {
   default = 2
-  type = number
+  type    = number
 }
 variable "min_size" {
   default = 1
-  type = number
+  type    = number
 }
 
 variable "env" {
@@ -22,13 +22,13 @@ variable "env" {
 }
 
 variable "private" {
-  type = bool
+  type     = bool
   nullable = true
-  default = false
+  default  = false
 }
 
 variable "public" {
-  type = bool
+  type     = bool
   nullable = true
-  default = false
+  default  = false
 }
