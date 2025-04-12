@@ -1,10 +1,26 @@
-module "IAM_role_eks" {
-  source      = "./module"
-  role_name   = "ANP-EKS"
-  service     = "eks"
-  policy_json = data.aws_iam_policy_document.ANP-EKS.json
+resource "aws_iam_role" "this" {
+  name = "App_eks_cluster"
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Sid    = ""
+        Principal = {
+          Service = "eks.amazonaws.com"
+        }
+      },
+    ]
+  })
 }
 
+resource "aws_iam_policy_attachment" "this" {
+  name = "eks-cluster-policy-attachment"
+  roles = [aws_iam_role.this.name]
+  policy_arn = aws_iam_policy.policy.arn
+
+}
 
 data "aws_iam_policy_document" "ANP-EKS" {
   statement {
@@ -74,3 +90,10 @@ data "aws_iam_policy_document" "ANP-EKS" {
     resources = ["*"]
   }
 }
+
+resource "aws_iam_policy" "policy" {
+  name        = aws_iam_role.this.name
+  description = "EKS ${aws_eks_cluster.anp.name} cluster policy"
+  policy = data.aws_iam_policy_document.ANP-EKS.json
+}
+

@@ -1,7 +1,7 @@
 terraform {
   backend "s3" {
-    bucket = "sanofi-chc-emea-anp-terraformstate-dev"
-    key = "api/eks.tfstate"
-    region = "eu-west-1"
+    bucket = "infrastructure-backend-ede"
+    key    = "eks/eks.tfstate"
+    region = "ap-south-1"
   }
 }

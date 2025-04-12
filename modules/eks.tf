@@ -2,22 +2,24 @@ resource "aws_eks_cluster" "anp" {
   name = "ANP-${var.cluster_name}"
 
   access_config {
-    authentication_mode = "API"
+    authentication_mode = "API_AND_CONFIG_MAP"
+    bootstrap_cluster_creator_admin_permissions = true
   }
-
-  role_arn = module.IAM_role_eks.role_arn
+  role_arn = aws_iam_role.this.arn
   version  = "1.32"
 
   vpc_config {
-    endpoint_public_access = false
-    endpoint_private_access = true
+    endpoint_public_access = var.public
+    endpoint_private_access = try(var.private, null)
     subnet_ids = [
       tolist(data.aws_subnets.subnets.ids)[0],
       tolist(data.aws_subnets.subnets.ids)[1],
+      tolist(data.aws_subnets.subnets.ids)[2],
+      tolist(data.aws_subnets.subnets.ids)[3],
     ]
   }
   
-  depends_on = [ module.IAM_role_eks ]
+  depends_on = [ aws_iam_role.this ]
 }
 
 

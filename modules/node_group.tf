@@ -1,7 +1,7 @@
 resource "aws_eks_node_group" "example" {
   cluster_name    = aws_eks_cluster.anp.name
   node_group_name = "example"
-  node_role_arn   = module.node_group_role.role_arn
+  node_role_arn   = aws_iam_role.node-group.arn
   subnet_ids      = [tolist(data.aws_subnets.subnets.ids)[0],tolist(data.aws_subnets.subnets.ids)[1]]
 
   scaling_config {
@@ -16,17 +16,28 @@ resource "aws_eks_node_group" "example" {
 }
 
 ################# ADD EBSCSI DRIVER POLICY  ##################
-module "node_group_role" {
-  source = "./module"
-  role_name = "ANP-EKS-NODEGROUP"
-  service = "ec2"
-  policy_json = data.aws_iam_policy_document.ANP-EKS-nodegroup.json
+
+resource "aws_iam_role" "node-group" {
+  name = "App_eks-node-group"
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Sid    = ""
+        Principal = {
+          Service = "ec2.amazonaws.com"
+        }
+      },
+    ]
+  })
 }
 
 resource "aws_iam_policy_attachment" "node-group-attachment" {
   name = "EBSCSI-Driver"
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy"
-  roles = [module.node_group_role.role_name]
+  roles = [aws_iam_role.node-group.name]
 }
 
 data "aws_iam_policy_document" "ANP-EKS-nodegroup" {
@@ -96,4 +107,16 @@ data "aws_iam_policy_document" "ANP-EKS-nodegroup" {
     ]
     resources = ["*"]
   }
+}
+
+resource "aws_iam_policy" "node-group-policy" {
+  name        = aws_iam_role.node-group.name
+  description = "EKS ${aws_eks_cluster.anp.name} node-group policy"
+  policy = data.aws_iam_policy_document.ANP-EKS-nodegroup.json
+}
+
+resource "aws_iam_policy_attachment" "node" {
+  name = "nodes policy attachment"
+  roles = [aws_iam_role.node-group.name]
+  policy_arn = aws_iam_policy.node-group-policy.arn
 }

@@ -13,7 +13,6 @@ resource "aws_iam_openid_connect_provider" "oidc_provider" {
 
 resource "aws_iam_role" "eks_sa_role" {
   name = "App_eks-irsa-role"
-  permissions_boundary = "arn:aws:iam::${local.aws_account_id}:policy/CE_AppAdminBoundary"
   assume_role_policy = jsonencode({
     Version = "2012-10-17",
     Statement = [

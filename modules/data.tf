@@ -2,8 +2,9 @@ data "aws_vpc" "main" {
 }
 
 data "aws_subnets" "subnets" {
-  tags = {
-    Terraform_Resource = "CE_Subnet"
+  filter {
+    name = "vpc-id"
+    values = [data.aws_vpc.main.id]
   }
 }
 
@@ -18,10 +19,6 @@ data "aws_security_group" "default" {
 data "aws_caller_identity" "current" {
 }
 
-data "aws_route53_zone" "selected" {
-  name         = "p${local.aws_account_id}.aws-${local.region_mapping[local.aws_region_name]}.sanofi.com"
-  private_zone = true
-}
 
 data "aws_region" "current" {
 }
@@ -32,5 +29,6 @@ locals {
   region_mapping = {
     us-east-1 = "amer"
     eu-west-1 = "emea"
+    ap-south-1 = "apac"
   }
 }
