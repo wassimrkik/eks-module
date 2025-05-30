@@ -6,7 +6,7 @@ resource "aws_eks_cluster" "anp" {
     bootstrap_cluster_creator_admin_permissions = true
   }
   role_arn = aws_iam_role.this.arn
-  version  = "1.32"
+  version  = "1.33"
 
   vpc_config {
     endpoint_public_access = var.public
