@@ -1,0 +1,2 @@
+a nat gateway needs to be provisioned in public subnet for fargate tasks to be scheduled
+check routing table in fargate private subnet to connect to public via nat gateway
